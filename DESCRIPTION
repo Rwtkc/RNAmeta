@@ -1,0 +1,27 @@
+Package: RNAmeta
+Title: RNAmeta: An R Package for Genomic Region Analysis and Visualization
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Rwtkc", 
+           email = "rwtkc@foxmail.com", 
+           role = c("aut", "cre"))
+Description: |
+    RNAmeta is an R package designed to facilitate the analysis and visualization of genomic regions,
+    such as mRNA, ncRNA, and other genomic features. It provides tools to sample genomic regions, 
+    calculate various statistical properties, and generate plots that represent genomic feature distributions.
+    The package utilizes genomic annotations and supports various transcript components, including 
+    promoters, exons, and UTRs. It enables users to perform in-depth transcriptomic analyses on genomic datasets.
+License: GPL (>= 3)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+Imports: 
+    AnnotationDbi,
+    BiocGenerics,
+    dplyr,
+    GenomicFeatures,
+    GenomicRanges,
+    ggplot2,
+    IRanges,
+    rtracklayer,
+    SummarizedExperiment
