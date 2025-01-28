@@ -136,6 +136,7 @@ RNAmeta_meta_plot <- function(bed_file = NULL,
                               confidence_interval_resampling_time = 1000,
                               confidence_interval_range = c(0.025, 0.975)
                               ){
+  #load txdb_file
   txdb_file <- AnnotationDbi::loadDb(txdb_file)
   guitar_txdb <- .get_Guitar_txdb(txdb_file = txdb_file,
                                  tx_five_utr_min_length = tx_five_utr_min_length,
