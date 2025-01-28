@@ -7,10 +7,13 @@
 RNAmeta_meta_plot(
   bed_file = NULL,
   txdb_file = NULL,
+  specie = NULL,
+  plot_tx_type = NULL,
+  sample_model = NULL,
+  head_or_tail = TRUE,
   set_group_name = NULL,
   set_ambiguity = 5,
   set_sample_number = 10,
-  sample_model = c("Equidistance", "random"),
   tx_five_utr_min_length = 100,
   tx_cds_min_length = 100,
   tx_three_utr_min_length = 100,
@@ -21,9 +24,7 @@ RNAmeta_meta_plot(
   tx_ambiguity = 5,
   tx_primary_only = TRUE,
   map_filter_transcript = TRUE,
-  head_or_tail = TRUE,
   enable_confidence_interval = FALSE,
-  plot_tx_type = c("mRNA", "ncRNA", "tx"),
   overlap_index = 1,
   site_length_index = 1,
   adjustment_factor = 1,
@@ -38,6 +39,22 @@ Requires standard BED format columns: chrom, start, end, and optional metadata f
 \item{txdb_file}{TxDb object or file path containing transcript annotations.
 Supports Bioconductor TxDb packages or SQLite database files with genomic
 features including gene IDs, transcript coordinates, and exon structures.}
+
+\item{plot_tx_type}{Which transcript type to plot.
+Specifies which transcript type (e.g., "tx", "mRNA", "ncRNA") should be drawn on the plot.
+If the specified transcript type is not found in the genome, it will not be plotted.
+Default: c("tx", "mRNA", "ncRNA")}
+
+\item{sample_model}{The sampling model to be used.
+Specifies the method for sampling bases from each genomic site.
+Options include "Equidistance" for evenly spaced sampling across the
+genomic region, or "random" for randomly selecting bases within the region.
+Default: "Equidistance"}
+
+\item{head_or_tail}{Whether to retain the promoter (head) and tail regions.
+If set to TRUE, both the promoter and tail regions will be considered in the analysis.
+If set to FALSE, these regions will be excluded.
+Default: TRUE}
 
 \item{set_group_name}{Group names for the genomic sites.
 Specifies the names used to categorize or group different genomic regions
@@ -56,12 +73,6 @@ Specifies how many bases are selected for analysis or sampling at each
 site defined in the BED file. This parameter controls the granularity
 of sampling across the genomic regions.
 Default: 10}
-
-\item{sample_model}{The sampling model to be used.
-Specifies the method for sampling bases from each genomic site.
-Options include "Equidistance" for evenly spaced sampling across the
-genomic region, or "random" for randomly selecting bases within the region.
-Default: "Equidistance"}
 
 \item{tx_five_utr_min_length}{Minimum length of the 5' UTR.
 Specifies the minimum length for the 5' untranslated region (UTR) of
@@ -123,20 +134,10 @@ Default: FALSE}
 If set to TRUE, only transcripts whose lengths match the length of the original site will be kept.
 Default: TRUE}
 
-\item{head_or_tail}{Whether to retain the promoter (head) and tail regions.
-If set to TRUE, both the promoter and tail regions will be considered in the analysis.
-If set to FALSE, these regions will be excluded.
-Default: TRUE}
-
 \item{enable_confidence_interval}{Whether to add a confidence interval (CI) curve.
 If set to TRUE, a CI curve will be included in the plot.
 If set to FALSE, no CI curve will be drawn.
 Default: TRUE}
-
-\item{plot_tx_type}{Which transcript type to plot.
-Specifies which transcript type (e.g., "tx", "mRNA", "ncRNA") should be drawn on the plot.
-If the specified transcript type is not found in the genome, it will not be plotted.
-Default: c("tx", "mRNA", "ncRNA")}
 
 \item{overlap_index}{Index of site overlap count.
 Specifies the number of overlaps between genomic sites to be considered.
