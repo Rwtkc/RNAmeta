@@ -354,7 +354,7 @@ GRanges_list_map_to_transcripts <- function(site = NULL, map_filter_transcript =
     x_unlisted <- site
   }
 
-  tx_coord <- GenomicFeatures::mapToTranscripts(x_unlisted, transcripts, ignore.strand = FALSE)
+  tx_coord <- suppressWarnings(GenomicFeatures::mapToTranscripts(x_unlisted, transcripts, ignore.strand = FALSE))
 
   x_hit_tx_hit_joint <- paste(names(tx_coord), tx_coord$transcriptsHits, sep = '-')
   tx_coord_grouped <- rtracklayer::split(tx_coord, x_hit_tx_hit_joint)
@@ -614,7 +614,13 @@ normalize <- function(sites_GRanges = NULL, guitar_txdb = NULL, tx_type = NULL, 
       y1 = rep(pos$fig_top, 4),
       y2 = rep(pos$rna_lgd_bl, 4)
     )
-    p <- p + ggplot2::geom_segment(aes(x =  vline_pos$x1, y =  vline_pos$y1, xend =  vline_pos$x2, yend =  vline_pos$y2), linetype="dotted", size=1, data = vline_pos)
+    p <- p + suppressWarnings(
+      ggplot2::geom_segment(
+        ggplot2::aes(x = x1, y = y1, xend = x2, yend = y2),
+        linetype = "dotted", size = 1, data = vline_pos
+      )
+    )
+
   }
 
 
@@ -638,7 +644,7 @@ normalize <- function(sites_GRanges = NULL, guitar_txdb = NULL, tx_type = NULL, 
   pos <- .generate_pos_para(peak)
 
   samples <- factor(density_data_frame_confidence_interval$group)
-  p <- ggplot2::ggplot(density_data_frame_confidence_interval, ggplot2::aes(x = density_data_frame_confidence_interval$x))
+  p <- suppressWarnings(ggplot2::ggplot(density_data_frame_confidence_interval, ggplot2::aes(x = x)))
   p <- p + ggplot2::geom_line(ggplot2::aes(y = density, colour = samples), alpha = 1, size = 1)
   p <- p + ggplot2::geom_ribbon(ggplot2::aes(ymin = rep(0, length(density)), ymax = density, colour = samples, fill = samples), alpha = 0.2 )
   if (enable_confidence_interval) {
@@ -683,3 +689,5 @@ normalize <- function(sites_GRanges = NULL, guitar_txdb = NULL, tx_type = NULL, 
 
   return(p)
 }
+
+
