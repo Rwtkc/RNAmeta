@@ -246,7 +246,7 @@
   return(guitar_txdb)
 }
 
-make_Guitar_txdb <- function(txdb_file = txdb_file,
+.make_Guitar_txdb <- function(txdb_file = txdb_file,
                              tx_five_utr_min_length = tx_five_utr_min_length,
                              tx_cds_min_length = tx_cds_min_length,
                              tx_three_utr_min_length = tx_three_utr_min_length,
@@ -292,7 +292,7 @@ make_Guitar_txdb <- function(txdb_file = txdb_file,
                              plot_tx_type = NULL
 )
 {
-  guitar_txdb <- make_Guitar_txdb(txdb_file = txdb_file,
+  guitar_txdb <- .make_Guitar_txdb(txdb_file = txdb_file,
                                   tx_five_utr_min_length = tx_five_utr_min_length,
                                   tx_cds_min_length = tx_cds_min_length,
                                   tx_three_utr_min_length = tx_three_utr_min_length,
@@ -339,7 +339,7 @@ make_Guitar_txdb <- function(txdb_file = txdb_file,
   return(set_GRange_lists)
 }
 
-GRanges_list_map_to_transcripts <- function(site = NULL, map_filter_transcript = FALSE, transcripts = NULL)
+.GRanges_list_map_to_transcripts <- function(site = NULL, map_filter_transcript = FALSE, transcripts = NULL)
 {
   if (is(site,"CompressedGRangesList"))
   {
@@ -382,7 +382,7 @@ GRanges_list_map_to_transcripts <- function(site = NULL, map_filter_transcript =
   return(tx_coord_filtered)
 }
 
-sample_points <- function(sites_GRange_lists = NULL,
+.sample_points <- function(sites_GRange_lists = NULL,
                           set_sample_number = NULL,
                           set_ambiguity = NULL,
                           plot_tx_type = NULL,
@@ -395,7 +395,7 @@ sample_points <- function(sites_GRange_lists = NULL,
   sites_GRange_data_frame <-list()
   set_sample_number <- 2 * set_sample_number - 1
   for (tx_type in plot_tx_type) {
-    map_site_GRanges[[tx_type]] <- GRanges_list_map_to_transcripts(sites_GRange_lists[[1]], map_filter_transcript, guitar_txdb[[tx_type]]$tx)
+    map_site_GRanges[[tx_type]] <- .GRanges_list_map_to_transcripts(sites_GRange_lists[[1]], map_filter_transcript, guitar_txdb[[tx_type]]$tx)
     sites_number <- length(map_site_GRanges[[tx_type]])
     sites_width <- width(map_site_GRanges[[tx_type]])
 
@@ -436,7 +436,7 @@ sample_points <- function(sites_GRange_lists = NULL,
   return(sites_GRange_data_frame)
 }
 
-normalize <- function(sites_GRanges = NULL, guitar_txdb = NULL, tx_type = NULL, overlap_index = NULL, site_length_index = NULL)
+.normalize <- function(sites_GRanges = NULL, guitar_txdb = NULL, tx_type = NULL, overlap_index = NULL, site_length_index = NULL)
 {
   sites_information <- data.frame()
 
@@ -689,5 +689,34 @@ normalize <- function(sites_GRanges = NULL, guitar_txdb = NULL, tx_type = NULL, 
 
   return(p)
 }
+
+.bed_file_test <- function(bed_file) {
+  if (tools::file_ext(bed_file) != "bed") {
+    stop("The file is not in .bed format")
+  }
+  first_line <- readLines(bed_file, n = 1)
+  if (any(!grepl("^\\d+$", unlist(strsplit(first_line, "\t"))))) {
+    warning("This file contains column names. We have removed the column names. Please use a BED file without column names.")
+    bed_data <- read.table(bed_file, header = FALSE, stringsAsFactors = FALSE, skip = 1)
+  } else {
+    bed_data <- read.table(bed_file, header = FALSE, stringsAsFactors = FALSE)
+  }
+  if (any(!grepl("^\\d+$", bed_data$V2))) {
+    non_numeric_rows <- which(!grepl("^\\d+$", bed_data$V2))
+    stop(paste("The second column has non-numeric values, error at row(s): ", paste(non_numeric_rows, collapse = ", ")))
+  }
+  if (any(!grepl("^\\d+$", bed_data$V3))) {
+    non_numeric_rows <- which(!grepl("^\\d+$", bed_data$V3))
+    stop(paste("The third column has non-numeric values, error at row(s): ", paste(non_numeric_rows, collapse = ", ")))
+  }
+  if (any(bed_data$V3 <= bed_data$V2)) {
+    invalid_rows <- which(bed_data$V3 <= bed_data$V2)
+    stop(paste("The third column is not greater than the second column, error at row(s): ", paste(invalid_rows, collapse = ", ")))
+  }
+
+  return("BED file test passed")
+}
+
+
 
 

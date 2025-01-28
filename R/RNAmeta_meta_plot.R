@@ -113,10 +113,12 @@
 #'
 RNAmeta_meta_plot <- function(bed_file = NULL,
                               txdb_file = NULL,
+                              plot_tx_type = NULL,
+                              sample_model = NULL,
+                              head_or_tail = TRUE,
                               set_group_name = NULL,
                               set_ambiguity = 5,
                               set_sample_number = 10,
-                              sample_model = c("Equidistance", "random"),
                               tx_five_utr_min_length = 100,
                               tx_cds_min_length = 100,
                               tx_three_utr_min_length = 100,
@@ -127,16 +129,16 @@ RNAmeta_meta_plot <- function(bed_file = NULL,
                               tx_ambiguity = 5,
                               tx_primary_only = TRUE,
                               map_filter_transcript = TRUE,
-                              head_or_tail = TRUE,
                               enable_confidence_interval = FALSE,
-                              plot_tx_type = c("mRNA", "ncRNA", "tx"),
                               overlap_index = 1,
                               site_length_index = 1,
                               adjustment_factor = 1,
                               confidence_interval_resampling_time = 1000,
                               confidence_interval_range = c(0.025, 0.975)
                               ){
-  #load txdb_file
+
+
+  .bed_file_test(bed_file)
   txdb_file <- AnnotationDbi::loadDb(txdb_file)
   guitar_txdb <- .get_Guitar_txdb(txdb_file = txdb_file,
                                  tx_five_utr_min_length = tx_five_utr_min_length,
@@ -160,7 +162,7 @@ RNAmeta_meta_plot <- function(bed_file = NULL,
   for (i in seq_len(sites_group_number)) {
     group_name = group_names[[i]]
     print(paste("sample", set_sample_number, "points for" , group_name, sep = " "))
-    sites_points <- sample_points(sites_group[i],
+    sites_points <- .sample_points(sites_group[i],
                                   set_sample_number = set_sample_number,
                                   set_ambiguity = set_ambiguity,
                                   plot_tx_type =  plot_tx_type,
@@ -169,7 +171,7 @@ RNAmeta_meta_plot <- function(bed_file = NULL,
                                   guitar_txdb)
 
     for (tx_type in plot_tx_type) {
-      sites_points_normlize[[tx_type]][[group_name]] <- normalize(sites_points, guitar_txdb, tx_type, overlap_index, site_length_index)
+      sites_points_normlize[[tx_type]][[group_name]] <- .normalize(sites_points, guitar_txdb, tx_type, overlap_index, site_length_index)
       sites_points_relative[[tx_type]][[group_name]] <- sites_points_normlize[[tx_type]][[group_name]][[1]]
       point_weight[[tx_type]][[group_name]] <- sites_points_normlize[[tx_type]][[group_name]][[2]]
     }
