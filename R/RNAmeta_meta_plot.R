@@ -137,7 +137,8 @@ RNAmeta_meta_plot <- function(bed_file = NULL,
                               confidence_interval_resampling_time = 1000,
                               confidence_interval_range = c(0.025, 0.975)
                               ){
-  .bed_file_test(bed_file)
+  chrom_info <- .txdb_file_test(txdb_file)
+  .bed_file_test(bed_file = bed_file, chrom_info = chrom_info)
   txdb_file <- AnnotationDbi::loadDb(txdb_file)
   guitar_txdb <- .get_Guitar_txdb(txdb_file = txdb_file,
                                  tx_five_utr_min_length = tx_five_utr_min_length,
@@ -204,24 +205,5 @@ RNAmeta_meta_plot <- function(bed_file = NULL,
                          tx_tail_length = tx_tail_length)
     return(p)
   }}
-
-#' @title Supported Species List
-#' @description This function generates a data frame containing the full names of several
-#' model organisms and other species supported by the rnameta package.
-#' @returns a data frame containing the full names of species.
-#' @export
-#'
-RNAmeta_species_list <- function() {
-  species_data <- data.frame(
-    species = c("Arabidopsis thaliana", "Brachypodium distachyon", "Caenorhabditis elegans",
-                          "Drosophila melanogaster", "Danio rerio", "Gallus gallus",
-                          "Gorilla gorilla", "Glycine max", "Homo sapiens 19",
-                          "Homo sapiens 38", "Mus musculus 10", "Macaca mulatta",
-                          "Medicago truncatula", "Oryza sativa", "Populus trichocarpa",
-                          "Pan troglodytes", "Rattus norvegicus", "Sorghum bicolor",
-                          "Saccharomyces cerevisiae", "Sus scrofa", "Vitis vinifera", "Zea mays")
-  )
-  print(species_data)
-}
 
 

@@ -690,12 +690,49 @@
   return(p)
 }
 
-.bed_file_test <- function(bed_file) {
+.txdb_file_test <- function(txdb_file = NULL){
+  print("Checking txdb_file begins.")
+  if (!grepl("\\.sqlite$", txdb_file)) {
+    stop("The file extension of txdb_file must be '.sqlite'")
+  }
+  txdb_sql <- DBI::dbConnect(RSQLite::SQLite(), dbname = txdb_file)
+  if (!"chrominfo" %in% DBI::dbListTables(txdb_sql)) {
+    DBI::dbDisconnect(txdb_sql)
+    stop("This database file does not meet the query specifications: 'chrominfo' table is missing.")
+  }
+  chrom_info <- data.table::as.data.table(DBI::dbGetQuery(txdb_sql, "SELECT * FROM chrominfo"))
+  if(is.null(chrom_info)){
+    DBI::dbDisconnect(txdb_sql)
+    stop("This database file does not meet the query specifications: 'chrominfo' table is null.")
+  }
+  DBI::dbDisconnect(txdb_sql)
+  print("txdb_file check passed.")
+  return(chrom_info)
+}
+
+.bed_file_test <- function(bed_file = NULL, chrom_info = NULL) {
+  print("Checking bed_file begins.")
   if (tools::file_ext(bed_file) != "bed") {
     stop("The file is not in .bed format")
   }
   first_line <- readLines(bed_file, n = 1)
-  if (any(!grepl("^\\d+$", unlist(strsplit(first_line, "\t"))))) {
+  first_five_lines <- readLines(bed_file, n = 5)
+  possible_delimiters <- c("\t", " ", ",")
+  detected_delimiter <- NULL
+  for (delimiter in possible_delimiters) {
+    split_counts <- sapply(first_five_lines, function(line) length(unlist(strsplit(line, delimiter))))
+    if (length(unique(split_counts)) == 1) {
+      detected_delimiter <- delimiter
+      break
+    }
+  }
+  if (is.null(detected_delimiter)) {
+    stop("Unable to detect the delimiter in the BED file. Please check the file format.")
+  }
+  first_line <- first_five_lines[1]
+  first_line <- unlist(strsplit(first_line, detected_delimiter))
+  is_header <- suppressWarnings(all(is.na(as.numeric(first_line))))
+  if (is_header) {
     warning("This file contains column names. We have removed the column names. Please use a BED file without column names.")
     bed_data <- read.table(bed_file, header = FALSE, stringsAsFactors = FALSE, skip = 1)
   } else {
@@ -713,8 +750,13 @@
     invalid_rows <- which(bed_data$V3 <= bed_data$V2)
     stop(paste("The third column is not greater than the second column, error at row(s): ", paste(invalid_rows, collapse = ", ")))
   }
-
-  return("BED file test passed")
+  bed_chroms <- unique(bed_data$V1)
+  chrom_info_chroms <- unique(chrom_info$chrom)
+  missing_chroms <- setdiff(bed_chroms, chrom_info_chroms)
+  if (length(missing_chroms) > 0) {
+    stop(paste("The following chromosomes in the bed_file are not present in chrom_info: ", paste(missing_chroms, collapse = ", ")))
+  }
+  print("bed_file check passed.")
 }
 
 
