@@ -18,11 +18,14 @@ RoxygenNote: 7.3.1
 Imports: 
     AnnotationDbi,
     BiocGenerics,
+    DBI,
     GenomicFeatures,
     GenomicRanges,
     IRanges,
+    RSQLite,
     rtracklayer,
     SummarizedExperiment
 Depends: 
+    data.table,
     dplyr,
     ggplot2
