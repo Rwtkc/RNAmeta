@@ -1,14 +1,14 @@
 # RNAmeta
 
-**RNAmeta** 是一个正在开发中的 R 包，旨在提供与 RNA 数据分析相关的功能。该包将帮助用户更高效地处理和分析 RNA 数据。
+**RNAmeta** is an R package currently under development, designed to provide tools and functionalities for RNA data analysis. This package aims to help users process and analyze RNA data more efficiently.
 
-## 项目状态
+## Project Status
 
-目前，RNAmeta 正在开发中。我们欢迎任何形式的贡献和建议！
+RNAmeta is currently under active development. Contributions and suggestions are welcome!
 
-## 安装
+## Installation
 
-您可以通过以下命令安装 RNAmeta：
+You can install RNAmeta using the following command:
 
 ```R
 devtools::install_github("Rwtkc/RNAmeta")
