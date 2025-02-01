@@ -113,7 +113,6 @@
 #'
 RNAmeta_meta_plot <- function(bed_file = NULL,
                               txdb_file = NULL,
-                              specie = NULL,
                               plot_tx_type = NULL,
                               sample_model = NULL,
                               head_or_tail = TRUE,
@@ -138,21 +137,21 @@ RNAmeta_meta_plot <- function(bed_file = NULL,
                               confidence_interval_range = c(0.025, 0.975)
                               ){
   chrom_info <- .txdb_file_test(txdb_file)
-  .bed_file_test(bed_file = bed_file, chrom_info = chrom_info)
+  bed_file <- .bed_file_test(bed_file = bed_file, chrom_info = chrom_info)
   txdb_file <- AnnotationDbi::loadDb(txdb_file)
   guitar_txdb <- .get_Guitar_txdb(txdb_file = txdb_file,
-                                 tx_five_utr_min_length = tx_five_utr_min_length,
-                                 tx_cds_min_length = tx_cds_min_length,
-                                 tx_three_utr_min_length = tx_three_utr_min_length,
-                                 tx_long_ncrna_min_length = tx_long_ncrna_min_length,
-                                 tx_promoter_length = tx_promoter_length,
-                                 tx_tail_length = tx_tail_length,
-                                 tx_ambiguity = tx_ambiguity,
-                                 txTxComponentProp = NULL,
-                                 txMrnaComponentProp = NULL,
-                                 txLncrnaComponentProp = NULL,
-                                 tx_primary_only = tx_primary_only,
-                                 plot_tx_type = plot_tx_type)
+                                  tx_five_utr_min_length = tx_five_utr_min_length,
+                                  tx_cds_min_length = tx_cds_min_length,
+                                  tx_three_utr_min_length = tx_three_utr_min_length,
+                                  tx_long_ncrna_min_length = tx_long_ncrna_min_length,
+                                  tx_promoter_length = tx_promoter_length,
+                                  tx_tail_length = tx_tail_length,
+                                  tx_ambiguity = tx_ambiguity,
+                                  txTxComponentProp = NULL,
+                                  txMrnaComponentProp = NULL,
+                                  txLncrnaComponentProp = NULL,
+                                  tx_primary_only = tx_primary_only,
+                                  plot_tx_type = plot_tx_type)
   sites_group <- .getStGroup(bed_file = bed_file, set_GRange_lists = NULL, set_group_name = set_group_name)
   group_names <- names(sites_group)
   sites_group_number <- length(sites_group)

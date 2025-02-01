@@ -397,7 +397,7 @@
   for (tx_type in plot_tx_type) {
     map_site_GRanges[[tx_type]] <- .GRanges_list_map_to_transcripts(sites_GRange_lists[[1]], map_filter_transcript, guitar_txdb[[tx_type]]$tx)
     sites_number <- length(map_site_GRanges[[tx_type]])
-    sites_width <- width(map_site_GRanges[[tx_type]])
+    sites_width <- rtracklayer::width(map_site_GRanges[[tx_type]])
 
     if(sample_model == "Equidistance")
     {
@@ -712,51 +712,61 @@
 
 .bed_file_test <- function(bed_file = NULL, chrom_info = NULL) {
   print("Checking bed_file begins.")
-  if (tools::file_ext(bed_file) != "bed") {
-    stop("The file is not in .bed format")
+  if (length(bed_file) > 2 && !is.list(bed_file)) {
+    stop("Error: If there are multiple bed_files, please use a list() to combine them.")
   }
-  first_line <- readLines(bed_file, n = 1)
-  first_five_lines <- readLines(bed_file, n = 5)
-  possible_delimiters <- c("\t", " ", ",")
-  detected_delimiter <- NULL
-  for (delimiter in possible_delimiters) {
-    split_counts <- sapply(first_five_lines, function(line) length(unlist(strsplit(line, delimiter))))
-    if (length(unique(split_counts)) == 1) {
-      detected_delimiter <- delimiter
-      break
+
+  for (i in 1:length(bed_file)) {
+    current_bed_file <- bed_file[[i]]
+    if (tools::file_ext(current_bed_file) != "bed") {
+      stop(paste("The file", current_bed_file, "is not in .bed format"))
     }
+    first_line <- readLines(current_bed_file, n = 1)
+    first_five_lines <- readLines(current_bed_file, n = 5)
+    possible_delimiters <- c("\t", " ", ",")
+    detected_delimiter <- NULL
+    for (delimiter in possible_delimiters) {
+      split_counts <- sapply(first_five_lines, function(line) length(unlist(strsplit(line, delimiter))))
+      if (length(unique(split_counts)) == 1) {
+        detected_delimiter <- delimiter
+        break
+      }
+    }
+    if (is.null(detected_delimiter)) {
+      stop(paste("Unable to detect the delimiter in the BED file", current_bed_file, ". Please check the file format."))
+    }
+    first_line <- first_five_lines[1]
+    first_line <- unlist(strsplit(first_line, detected_delimiter))
+    is_header <- suppressWarnings(all(is.na(as.numeric(first_line))))
+    if (is_header) {
+      warning(paste("This file", current_bed_file, "contains column names. We have removed the column names. Please use a BED file without column names."))
+      bed_data <- read.table(current_bed_file, header = FALSE, stringsAsFactors = FALSE, skip = 1)
+    } else {
+      bed_data <- read.table(current_bed_file, header = FALSE, stringsAsFactors = FALSE)
+    }
+    if (any(!grepl("^\\d+$", bed_data$V2))) {
+      non_numeric_rows <- which(!grepl("^\\d+$", bed_data$V2))
+      stop(paste("The second column has non-numeric values in", current_bed_file, "error at row(s):", paste(non_numeric_rows, collapse = ", ")))
+    }
+    if (any(!grepl("^\\d+$", bed_data$V3))) {
+      non_numeric_rows <- which(!grepl("^\\d+$", bed_data$V3))
+      stop(paste("The third column has non-numeric values in", current_bed_file, "error at row(s):", paste(non_numeric_rows, collapse = ", ")))
+    }
+    if (any(bed_data$V3 <= bed_data$V2)) {
+      invalid_rows <- which(bed_data$V3 <= bed_data$V2)
+      stop(paste("The third column is not greater than the second column in", current_bed_file, "error at row(s):", paste(invalid_rows, collapse = ", ")))
+    }
+    bed_chroms <- unique(bed_data$V1)
+    chrom_info_chroms <- unique(chrom_info$chrom)
+    missing_chroms <- setdiff(bed_chroms, chrom_info_chroms)
+    if (length(missing_chroms) > 0) {
+      stop(paste("The following chromosomes in", current_bed_file, "are not present in chrom_info:", paste(missing_chroms, collapse = ", ")))
+    }
+    bed_file[[i]] <- bed_data
   }
-  if (is.null(detected_delimiter)) {
-    stop("Unable to detect the delimiter in the BED file. Please check the file format.")
-  }
-  first_line <- first_five_lines[1]
-  first_line <- unlist(strsplit(first_line, detected_delimiter))
-  is_header <- suppressWarnings(all(is.na(as.numeric(first_line))))
-  if (is_header) {
-    warning("This file contains column names. We have removed the column names. Please use a BED file without column names.")
-    bed_data <- read.table(bed_file, header = FALSE, stringsAsFactors = FALSE, skip = 1)
-  } else {
-    bed_data <- read.table(bed_file, header = FALSE, stringsAsFactors = FALSE)
-  }
-  if (any(!grepl("^\\d+$", bed_data$V2))) {
-    non_numeric_rows <- which(!grepl("^\\d+$", bed_data$V2))
-    stop(paste("The second column has non-numeric values, error at row(s): ", paste(non_numeric_rows, collapse = ", ")))
-  }
-  if (any(!grepl("^\\d+$", bed_data$V3))) {
-    non_numeric_rows <- which(!grepl("^\\d+$", bed_data$V3))
-    stop(paste("The third column has non-numeric values, error at row(s): ", paste(non_numeric_rows, collapse = ", ")))
-  }
-  if (any(bed_data$V3 <= bed_data$V2)) {
-    invalid_rows <- which(bed_data$V3 <= bed_data$V2)
-    stop(paste("The third column is not greater than the second column, error at row(s): ", paste(invalid_rows, collapse = ", ")))
-  }
-  bed_chroms <- unique(bed_data$V1)
-  chrom_info_chroms <- unique(chrom_info$chrom)
-  missing_chroms <- setdiff(bed_chroms, chrom_info_chroms)
-  if (length(missing_chroms) > 0) {
-    stop(paste("The following chromosomes in the bed_file are not present in chrom_info: ", paste(missing_chroms, collapse = ", ")))
-  }
+
   print("bed_file check passed.")
+  return(bed_file)
 }
 
 
