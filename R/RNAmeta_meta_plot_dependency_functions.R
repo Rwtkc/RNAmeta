@@ -716,6 +716,8 @@
     stop("Error: If there are multiple bed_files, please use a list() to combine them.")
   }
 
+  modified_bed_files <- list()
+
   for (i in 1:length(bed_file)) {
     current_bed_file <- bed_file[[i]]
     if (tools::file_ext(current_bed_file) != "bed") {
@@ -762,11 +764,12 @@
     if (length(missing_chroms) > 0) {
       stop(paste("The following chromosomes in", current_bed_file, "are not present in chrom_info:", paste(missing_chroms, collapse = ", ")))
     }
-    bed_file[[i]] <- bed_data
+    temp_bed_file <- tempfile(pattern = "modified_", fileext = ".bed")
+    modified_bed_files[[i]] <- temp_bed_file
   }
 
   print("bed_file check passed.")
-  return(bed_file)
+  return(modified_bed_files)
 }
 
 
