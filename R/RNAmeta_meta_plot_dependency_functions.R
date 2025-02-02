@@ -247,18 +247,18 @@
 }
 
 .make_Guitar_txdb <- function(txdb_file = txdb_file,
-                             tx_five_utr_min_length = tx_five_utr_min_length,
-                             tx_cds_min_length = tx_cds_min_length,
-                             tx_three_utr_min_length = tx_three_utr_min_length,
-                             tx_long_ncrna_min_length = tx_long_ncrna_min_length,
-                             tx_promoter_length = tx_promoter_length,
-                             tx_tail_length = tx_tail_length,
-                             tx_ambiguity = tx_ambiguity,
-                             txTxComponentProp = NULL,
-                             txMrnaComponentProp = NULL,
-                             txLncrnaComponentProp = NULL,
-                             tx_primary_only = tx_primary_only,
-                             plot_tx_type = plot_tx_type
+                              tx_five_utr_min_length = tx_five_utr_min_length,
+                              tx_cds_min_length = tx_cds_min_length,
+                              tx_three_utr_min_length = tx_three_utr_min_length,
+                              tx_long_ncrna_min_length = tx_long_ncrna_min_length,
+                              tx_promoter_length = tx_promoter_length,
+                              tx_tail_length = tx_tail_length,
+                              tx_ambiguity = tx_ambiguity,
+                              txTxComponentProp = NULL,
+                              txMrnaComponentProp = NULL,
+                              txLncrnaComponentProp = NULL,
+                              tx_primary_only = tx_primary_only,
+                              plot_tx_type = plot_tx_type
 )
 {
   tx_component <- .extract_component(txdb_file = txdb_file,
@@ -293,18 +293,18 @@
 )
 {
   guitar_txdb <- .make_Guitar_txdb(txdb_file = txdb_file,
-                                  tx_five_utr_min_length = tx_five_utr_min_length,
-                                  tx_cds_min_length = tx_cds_min_length,
-                                  tx_three_utr_min_length = tx_three_utr_min_length,
-                                  tx_long_ncrna_min_length = tx_long_ncrna_min_length,
-                                  tx_promoter_length = tx_promoter_length,
-                                  tx_tail_length = tx_tail_length,
-                                  tx_ambiguity = tx_ambiguity,
-                                  txTxComponentProp = NULL,
-                                  txMrnaComponentProp = NULL,
-                                  txLncrnaComponentProp = NULL,
-                                  tx_primary_only = tx_primary_only,
-                                  plot_tx_type = plot_tx_type
+                                   tx_five_utr_min_length = tx_five_utr_min_length,
+                                   tx_cds_min_length = tx_cds_min_length,
+                                   tx_three_utr_min_length = tx_three_utr_min_length,
+                                   tx_long_ncrna_min_length = tx_long_ncrna_min_length,
+                                   tx_promoter_length = tx_promoter_length,
+                                   tx_tail_length = tx_tail_length,
+                                   tx_ambiguity = tx_ambiguity,
+                                   txTxComponentProp = NULL,
+                                   txMrnaComponentProp = NULL,
+                                   txLncrnaComponentProp = NULL,
+                                   tx_primary_only = tx_primary_only,
+                                   plot_tx_type = plot_tx_type
   )
 
 
@@ -383,12 +383,12 @@
 }
 
 .sample_points <- function(sites_GRange_lists = NULL,
-                          set_sample_number = NULL,
-                          set_ambiguity = NULL,
-                          plot_tx_type = NULL,
-                          sample_model = NULL,
-                          map_filter_transcript = FALSE,
-                          guitar_txdb = NULL)
+                           set_sample_number = NULL,
+                           set_ambiguity = NULL,
+                           plot_tx_type = NULL,
+                           sample_model = NULL,
+                           map_filter_transcript = FALSE,
+                           guitar_txdb = NULL)
 {
   map_site_GRanges <- list()
   sites_points <- list()
@@ -710,8 +710,13 @@
   return(chrom_info)
 }
 
-.bed_file_test <- function(bed_file = NULL, chrom_info = NULL) {
+.bed_file_test <- function(bed_file = NULL, chrom_info = NULL, set_group_name_length = NULL) {
   print("Checking bed_file begins.")
+  if(set_group_name_length != length(bed_file)){
+    stop(paste("Error: The number of 'bed files' is", length(bed_file),
+               "but the number of 'group names' is", set_group_name_length,
+               ". The numbers are not equal."))
+  }
   if (length(bed_file) > 2 && !is.list(bed_file)) {
     stop("Error: If there are multiple bed_files, please use a list() to combine them.")
   }
@@ -764,14 +769,26 @@
     if (length(missing_chroms) > 0) {
       stop(paste("The following chromosomes in", current_bed_file, "are not present in chrom_info:", paste(missing_chroms, collapse = ", ")))
     }
+    bed_data <- data.table::as.data.table(bed_data)
+    if (ncol(bed_data) == 3) {
+      bed_data[, V4 := paste0("site", .I)]
+      bed_data[, V5 := "."]
+      bed_data[, V6 := "*"]
+    } else if (ncol(bed_data) == 4) {
+      bed_data[, V5 := "."]
+      bed_data[, V6 := "*"]
+    } else if (ncol(bed_data) == 5) {
+      bed_data[, V6 := "*"]
+    }
+    suppressWarnings(if (sum(!is.na(as.numeric(bed_data[[5]]))) > sum(sapply(bed_data[, -5, with = FALSE], function(col) sum(is.na(as.numeric(col)))))) {
+      bed_data <- bed_data[!is.na(as.numeric(bed_data[[5]])), ]
+    })
+    bed_data <- bed_data[, 1:6, with = FALSE]
     temp_bed_file <- tempfile(pattern = "modified_", fileext = ".bed")
+    write.table(bed_data, temp_bed_file, sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
     modified_bed_files[[i]] <- temp_bed_file
   }
 
   print("bed_file check passed.")
   return(modified_bed_files)
 }
-
-
-
-
