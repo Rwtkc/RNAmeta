@@ -137,7 +137,7 @@ RNAmeta_meta_plot <- function(bed_file = NULL,
                               confidence_interval_range = c(0.025, 0.975)
                               ){
   if(is.null(set_group_name)){
-    set_group_name_length = 1
+    set_group_name_length = length(bed_file)
   } else {
     set_group_name_length = length(set_group_name)
   }
