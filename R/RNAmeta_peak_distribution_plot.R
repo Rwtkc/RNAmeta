@@ -7,7 +7,7 @@
 #' @returns A `ggplot` object representing the bar plot of peak distribution across features. The plot shows the frequency of each feature for different samples, with a manual color scheme applied to each group.
 #' @export
 #'
-peak_distribution_plot <- function(preliminary_analysis_data = NULL, set_group_name = NULL, features_to_remove = NULL){
+RNAmeta_peak_distribution_plot <- function(preliminary_analysis_data = NULL, set_group_name = NULL, features_to_remove = NULL){
   all_sites_list <- list()
   my_colors <- c("#de7a61", "#3f3f5b", "#81b29d", "#ffb5b0", "#d3a6c6", "#f5d300")
   for(i in 1:length(preliminary_analysis_data[[1]])){

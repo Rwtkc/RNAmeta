@@ -13,7 +13,7 @@
 #'
 #' @export
 #'
-gene_type_plot <- function(preliminary_analysis_data = NULL, set_group_name = NULL){
+RNAmeta_gene_type_plot <- function(preliminary_analysis_data = NULL, set_group_name = NULL){
   peak_gr <- preliminary_analysis_data[[2]]
   gff_file <- preliminary_analysis_data[[3]]
   cct_res <- list()
