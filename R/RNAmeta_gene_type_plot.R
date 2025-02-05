@@ -40,9 +40,9 @@ RNAmeta_gene_type_plot <- function(preliminary_analysis_data = NULL, set_group_n
     all_sites$Sample <- dplyr::recode(all_sites$Sample, !!!group_mapping)
   }
   if(length(IRanges::unique(all_sites$Sample)) > 1){
-    legendPosition <- "right"
+    legend_position <- "right"
   } else {
-    legendPosition <- "none"
+    legend_position <- "none"
   }
 
   p <- suppressWarnings(ggpubr::ggbarplot(all_sites, x = "V1", y = "N", fill = "Sample",
@@ -55,7 +55,7 @@ RNAmeta_gene_type_plot <- function(preliminary_analysis_data = NULL, set_group_n
                                           rotate = TRUE,
                                           position = ggplot2::position_dodge(0.8)) +
                           ggplot2::labs(y = "", x = "") +
-                          ggplot2::theme(legend.position = legendPosition,
+                          ggplot2::theme(legend.position = legend_position,
                                          axis.ticks.y = ggplot2::element_blank(),
                                          axis.ticks.x = ggplot2::element_blank(),
                                          panel.grid.major.x = ggplot2::element_line(color = "grey", size = 0.45),
