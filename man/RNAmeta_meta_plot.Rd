@@ -7,7 +7,6 @@
 RNAmeta_meta_plot(
   bed_file = NULL,
   txdb_file = NULL,
-  specie = NULL,
   plot_tx_type = NULL,
   sample_model = NULL,
   head_or_tail = TRUE,
