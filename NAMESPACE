@@ -2,3 +2,4 @@
 
 export(RNAmeta_meta_plot)
 export(get_preliminary_analysis_data)
+export(peak_distribution_plot)
