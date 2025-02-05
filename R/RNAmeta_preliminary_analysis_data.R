@@ -66,7 +66,7 @@ get_preliminary_analysis_data <- function(bed_file = NULL, txdb_file = NULL, tx_
     } else {
       peak_gr_for_motifscan[[group_name]] <- ctt
     }
-    ctt <- GenomicRanges::resize(ctt, width=1, fix="center")
+    ctt <- GenomicRanges::resize(ctt, width = 1, fix = "center")
     peak_gr[[group_name]] = ctt
     peak_dt[[group_name]] = data.table::as.data.table(ctt)
     cct = lapply(1:length(peak_gr),
