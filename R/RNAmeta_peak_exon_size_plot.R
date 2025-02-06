@@ -14,9 +14,9 @@ RNAmeta_peak_exon_size_plot <- function(preliminary_analysis_data = NULL, set_gr
     cct <- preliminary_analysis_data[[1]][[i]]
     cct2 = cct[[2]]
     all_sites <- data.table::as.data.table(cct2)
-    all_sites[,group := gsub("_.*", "", Sample)]
-    all_sites[,Sample := gsub(".*_", "", Sample)]
-    total_all_sites <- rbind(total_all_sites, all_sites)
+    all_sites[,group := IRanges::gsub("_.*", "", Sample)]
+    all_sites[,Sample := IRanges::gsub(".*_", "", Sample)]
+    total_all_sites <- IRanges::rbind(total_all_sites, all_sites)
   }
   if(is.null(set_group_name)){} else {
     original_group_names <- IRanges::unique(total_all_sites$Sample)
@@ -29,7 +29,7 @@ RNAmeta_peak_exon_size_plot <- function(preliminary_analysis_data = NULL, set_gr
     total_all_sites$Sample <- dplyr::recode(total_all_sites$Sample, !!!group_mapping)
   }
 
-  if(length(unique(total_all_sites$Sample)) > 1){
+  if(length(IRanges::unique(total_all_sites$Sample)) > 1){
     legend_position <- "top"
   } else {
     legend_position <- "none"
