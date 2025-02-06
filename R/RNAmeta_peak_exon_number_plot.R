@@ -35,7 +35,7 @@ RNAmeta_peak_exon_number_plot <- function(preliminary_analysis_data = NULL, set_
   }
   p <- ggpubr::ggboxplot(all_sites, x = 'Sample', y = 'nexon', width = 0.3, color = "Sample") +
     ggplot2::labs(x = "", y = "Number of exons") +
-    ggplot2::scale_fill_manual(values = c("#c21d2e", "#7ecba4")) +
+    ggplot2::scale_fill_manual(values = c("#c21d2e", "#7ecba4", "#ff6347", "#4682b4", "#32cd32", "#ffd700")) +
     ggplot2::theme(
       legend.position = legend_position,
       legend.title = ggplot2::element_blank(),
