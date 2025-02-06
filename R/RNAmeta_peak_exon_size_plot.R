@@ -34,7 +34,7 @@ RNAmeta_peak_exon_size_plot <- function(preliminary_analysis_data = NULL, set_gr
   } else {
     legend_position <- "none"
   }
-  p6 <- ggpubr::ggboxplot(total_all_sites, x = 'Sample', y = 'length', color = 'Sample',
+  p <- ggpubr::ggboxplot(total_all_sites, x = 'Sample', y = 'length', color = 'Sample',
                   facet.by = "exonLoc", yscale = "log2", width = 0.3) +
     ggplot2::scale_fill_manual(values = c("#4e62ab", "#469db4", "#87d0a8", "#ff5733", "#33ff57", "#ff33a8")) +
     ggplot2::labs(x = "", y = "log2(Length)(bp)") +
