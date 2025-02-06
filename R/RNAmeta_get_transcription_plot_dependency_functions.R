@@ -134,15 +134,3 @@
   return(.peak_heatmap(tag_matrix_5 = sm_5, tag_matrix_3 = sm_3))
 }
 
-.get_transcription_data <- function(preliminary_analysis_data = NULL){
-  txdb_features <- preliminary_analysis_data[[7]]
-  peak_gr <- preliminary_analysis_data[[2]]
-  flank_size <- preliminary_analysis_data[[6]]
-  gene_max_tx_lengths <- preliminary_analysis_data[[8]]
-  cct3 = lapply(1:length(peak_gr), .get_feature_boundary_coverage_new, query_regions = peak_gr, feature_coords = txdb_features$cds, flank_size = flank_size, boundary_type = 'Transcription_start_site', sample_n = 10000)
-  cct4 = lapply(1:length(peak_gr), .get_feature_boundary_coverage_new , query_regions = peak_gr, feature_coords = txdb_features$cds, flank_size = flank_size, boundary_type = 'Transcription_end_site', sample_n = 10000)
-  cvg_list = data.table::rbindlist(c(cct3,cct4))
-  peak_heatmap_data = lapply(1:length(peak_gr), .get_feature_boundary_heatmap, peak_gr, txdb_features, gene_max_tx_lengths, flank_size)
-  cvg_list_and_peak_heatmap_data <- list(cvg_list, peak_heatmap_data[[1]])
-  return(cvg_list_and_peak_heatmap_data)
-}
