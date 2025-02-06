@@ -2,6 +2,7 @@
 
 export(RNAmeta_gene_type_plot)
 export(RNAmeta_get_preliminary_analysis_data)
+export(RNAmeta_get_transcription_plot)
 export(RNAmeta_meta_plot)
 export(RNAmeta_peak_distribution_plot)
 export(RNAmeta_peak_exon_number_plot)
