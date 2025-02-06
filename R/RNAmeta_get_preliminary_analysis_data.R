@@ -90,7 +90,8 @@ RNAmeta_get_preliminary_analysis_data <- function(bed_file = NULL, txdb_file = N
                                     flanking_size,
                                     txdb_features,
                                     gene_max_tx_lengths,
-                                    short_flanking_size)
+                                    short_flanking_size,
+                                    tx_length_file)
   return(preliminary_analysis_data)
 }
 
