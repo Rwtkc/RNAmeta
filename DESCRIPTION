@@ -27,7 +27,8 @@ Imports:
     IRanges,
     RSQLite,
     rtracklayer,
-    SummarizedExperiment
+    SummarizedExperiment,
+    VennDiagram
 Depends: 
     data.table,
     dplyr,
