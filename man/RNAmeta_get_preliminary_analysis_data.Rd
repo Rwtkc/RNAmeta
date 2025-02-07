@@ -55,17 +55,17 @@ A list containing the following elements:
 \itemize{
 \item \code{cct_list}: A list of results from batch genomic annotation processes for each
 BED file.
-\item \code{peak_gr_list}: A list of GenomicRanges objects representing peaks for each group.
-\item \code{gff_file}: The loaded GFF file, processed and adjusted for further analysis.
-\item \code{peak_gr_for_motifscan}: A list of GenomicRanges objects resized for motif scanning.
-\item \code{motif_parameter}: A vector containing the motif parameter extracted from the input.
-\item \code{flanking_size}: The flanking size (set to 1000 by default) used for genomic analyses.
-\item \code{txdb_features}: A list of features extracted from the TxDb file, such as exons,
-promoters, and coding sequences.
+\item \code{peak_gr_list}: A list of \code{GRanges} objects representing peaks for each group.
+\item \code{gff_file}: The processed and loaded GFF file with necessary modifications.
+\item \code{peak_gr_for_motifscan}: A list of \code{GRanges} objects resized for motif scanning.
+\item \code{motif_parameter}: A vector containing motif scanning parameters extracted from input.
+\item \code{flanking_size}: The flanking size (default: 1000 bp) used for genomic analyses.
+\item \code{txdb_features}: A list of transcript-related genomic features (e.g., exons, promoters, CDS) extracted from the TxDb file.
 \item \code{gene_max_tx_lengths}: A data table containing the maximum transcript lengths
-for each gene.
-\item \code{short_flanking_size}: The short flanking size (set to 100 by default) used in
-certain genomic analysis steps.
+for each gene, aiding in gene length normalization in downstream analysis.
+\item \code{short_flanking_size}: A smaller flanking size (default: 100 bp) used in certain genomic analysis steps.
+\item \code{tx_length_file}: A processed transcript length file providing information on transcript sizes.
+is steps.
 }
 }
 \description{

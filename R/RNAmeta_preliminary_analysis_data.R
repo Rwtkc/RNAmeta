@@ -9,21 +9,20 @@
 #' @param gff_file A file path to a GFF (General Feature Format) file that provides
 #' genomic annotations, including gene and transcript information. The file should
 #' contain columns such as gene ID and feature types (e.g., "gene", "CDS", "exon").
-#'
 #' @returns A list containing the following elements:
 #' - `cct_list`: A list of results from batch genomic annotation processes for each
-#' BED file.
-#' - `peak_gr_list`: A list of GenomicRanges objects representing peaks for each group.
-#' - `gff_file`: The loaded GFF file, processed and adjusted for further analysis.
-#' - `peak_gr_for_motifscan`: A list of GenomicRanges objects resized for motif scanning.
-#' - `motif_parameter`: A vector containing the motif parameter extracted from the input.
-#' - `flanking_size`: The flanking size (set to 1000 by default) used for genomic analyses.
-#' - `txdb_features`: A list of features extracted from the TxDb file, such as exons,
-#' promoters, and coding sequences.
+#'   BED file.
+#' - `peak_gr_list`: A list of `GRanges` objects representing peaks for each group.
+#' - `gff_file`: The processed and loaded GFF file with necessary modifications.
+#' - `peak_gr_for_motifscan`: A list of `GRanges` objects resized for motif scanning.
+#' - `motif_parameter`: A vector containing motif scanning parameters extracted from input.
+#' - `flanking_size`: The flanking size (default: 1000 bp) used for genomic analyses.
+#' - `txdb_features`: A list of transcript-related genomic features (e.g., exons, promoters, CDS) extracted from the TxDb file.
 #' - `gene_max_tx_lengths`: A data table containing the maximum transcript lengths
-#' for each gene.
-#' - `short_flanking_size`: The short flanking size (set to 100 by default) used in
-#' certain genomic analysis steps.
+#'   for each gene, aiding in gene length normalization in downstream analysis.
+#' - `short_flanking_size`: A smaller flanking size (default: 100 bp) used in certain genomic analysis steps.
+#' - `tx_length_file`: A processed transcript length file providing information on transcript sizes.
+#'is steps.
 #'
 #' @export
 #'
@@ -90,16 +89,7 @@ RNAmeta_get_preliminary_analysis_data <- function(bed_file = NULL, txdb_file = N
                                     flanking_size,
                                     txdb_features,
                                     gene_max_tx_lengths,
-                                    short_flanking_size)
+                                    short_flanking_size,
+                                    tx_length_file)
   return(preliminary_analysis_data)
 }
-
-
-
-
-
-
-
-
-
-

@@ -1,16 +1,15 @@
-.get_translation_boundary_coverage_new <- function(index = NULL, query_regions = NULL, tx_length_file = NULL, feature_coords = NULL, flank_size = NULL) {
-  tx_length_file_for_translation_site <- copy(tx_length_file)
-  tx_length_file_for_translation_site <- tx_length_file_for_translation_site[utr5_len > flank_size & utr3_len > flank_size & cds_len > flank_size, .(tx_name, utr5_len, cds_len, utr3_len)]
-  tss_gene_ranges <- tx_length_file_for_translation_site[ ,.(seqnames = tx_name, start = utr5_len + 1 - flank_size, end = utr5_len + 1 + flank_size, strand = "*", tx_name = tx_name)]
-  tes_gene_ranges <- tx_length_file_for_translation_site[ ,.(seqnames = tx_name, start = utr5_len + cds_len - flank_size, end = utr5_len + cds_len + flank_size, strand = "*", tx_name = tx_name)]
-
+.get_translation_boundary_coverage_new <- function(index, query_regions, tx_length_file, feature_coords, flank_size = NULL) {
+  tx_length_for_translation_site <- data.table::copy(tx_length_file)
+  tx_length_for_translation_site <- tx_length_for_translation_site[utr5_len > flank_size & utr3_len > flank_size & cds_len > flank_size, .(tx_name, utr5_len, cds_len, utr3_len)]
+  tss_gene_ranges <- tx_length_for_translation_site[, .(seqnames = tx_name, start = utr5_len + 1 - flank_size, end = utr5_len + 1 + flank_size, strand = "*", tx_name = tx_name)]
+  tes_gene_ranges <- tx_length_for_translation_site[, .(seqnames = tx_name, start = utr5_len + cds_len - flank_size, end = utr5_len + cds_len + flank_size, strand = "*", tx_name = tx_name)]
   tss_gene_ranges <- GenomicRanges::makeGRangesFromDataFrame(tss_gene_ranges)
   tes_gene_ranges <- GenomicRanges::makeGRangesFromDataFrame(tes_gene_ranges)
-  tss_gene_ranges <- split(tss_gene_ranges, GenomicRanges::seqnames(tss_gene_ranges))
-  tes_gene_ranges <- split(tes_gene_ranges, GenomicRanges::seqnames(tes_gene_ranges))
+  tss_gene_ranges <- GenomicRanges::split(tss_gene_ranges, GenomicRanges::seqnames(tss_gene_ranges))
+  tes_gene_ranges <- GenomicRanges::split(tes_gene_ranges, GenomicRanges::seqnames(tes_gene_ranges))
   qregion <- query_regions[[index]]
-  qregion <- qregion[GenomicRanges::seqnames(qregion) %in% GenomeInfoDb::seqlevels(feature_coords)]
-  GenomeInfoDb::seqlevels(qregion) <- GenomicRanges::intersect(GenomeInfoDb::seqlevels(qregion), GenomeInfoDb::seqlevels(feature_coords))
+  qregion <- qregion[as.character(GenomicRanges::seqnames(qregion)) %in% as.character(GenomeInfoDb::seqlevels(feature_coords))]
+  GenomeInfoDb::seqlevels(qregion) <- intersect(GenomeInfoDb::seqlevels(qregion), GenomeInfoDb::seqlevels(feature_coords))
   peak_gene_ranges <- GenomicFeatures::mapToTranscripts(qregion, feature_coords)
   results_list <- list()
   if(length(peak_gene_ranges) == 0){
@@ -24,34 +23,31 @@
   peak_table <- data.table::as.data.table(query_regions[[index]])
   peak_table[, index := .I]
   hits_tss <- data.table::as.data.table(hits_tss)
-  setnames(hits_tss, c('seqnames','xHits'), c('transcriptID','index'))
+  data.table::setnames(hits_tss, c('seqnames','xHits'), c('transcriptID','index'))
   peak_table_tss <- peak_table[hits_tss, on = 'index']
   peak_table_tss[, c("index","transcriptsHits") := NULL]
   peak_table_tss[, Sample := sample_name]
-  peak_table_tss[, feature :='Translation_start_site']
+  peak_table_tss[, feature := 'Translation_start_site']
   peak_table_tss[, rel_pos := i.start - flank_size]
   peak_table_tss[, flank_size := flank_size]
-
   hits_tes <- GenomicFeatures::mapToTranscripts(peak_gene_ranges, tes_gene_ranges, ignore.strand = FALSE)
   hits_tes <- data.table::as.data.table(hits_tes)
-  setnames(hits_tes, c('seqnames','xHits'), c('transcriptID','index'))
+  data.table::setnames(hits_tes, c('seqnames','xHits'), c('transcriptID','index'))
   peak_table_tes <- peak_table[hits_tes, on = 'index']
   peak_table_tes[, c("index","transcriptsHits") := NULL]
   peak_table_tes[, Sample := sample_name]
-  peak_table_tes[, feature :='Translation_end_site']
+  peak_table_tes[, feature := 'Translation_end_site']
   peak_table_tes[, rel_pos := i.start - flank_size]
-  peak_table_tes[, flank_size :=flank_size]
-
+  peak_table_tes[, flank_size := flank_size]
   peak_table_tss[, xmin := -flank_size]
   peak_table_tss[, xmax := flank_size]
   peak_table_tes[, xmin := -flank_size]
   peak_table_tes[, xmax := flank_size]
-
   results_list <- rbind(peak_table_tss, peak_table_tes)
   return(results_list)
 }
 
-.score_matrix_RNA <-function(target = NULL, windows = NULL, strand_aware = NULL, weight_col = NULL){
+.score_matrix_RNA <- function(target = NULL, windows = NULL, strand_aware = NULL, weight_col = NULL){
   if(is.null(weight_col)){
     target.rle = SummarizedExperiment::coverage(target)
   }else{
@@ -124,28 +120,23 @@
 .get_translation_boundary_heatmap <- function(index = NULL, query_regions = NULL, tx_length_file = NULL, feature_coords = NULL, flank_size = NULL) {
   sn = names(query_regions[index])
   qregion = query_regions[[index]]
-
-  tx_length_for_translation_site <- copy(txlens)
+  tx_length_for_translation_site <- data.table::copy(tx_length_file)
   tx_length_for_translation_site <- tx_length_for_translation_site[utr5_len > flank_size & utr3_len > flank_size & cds_len > flank_size, .(tx_name, utr5_len, cds_len, utr3_len)]
   tss_gene_ranges <- tx_length_for_translation_site[, .(seqnames = tx_name, start = utr5_len + 1 - flank_size, end = utr5_len + 1 + flank_size, strand = "*", tx_name = tx_name)]
   tes_gene_ranges <- tx_length_for_translation_site[, .(seqnames = tx_name, start = utr5_len + cds_len - flank_size, end = utr5_len + cds_len + flank_size, strand = "*", tx_name = tx_name)]
-
   tss_gene_ranges <- GenomicRanges::makeGRangesFromDataFrame(tss_gene_ranges)
   tes_gene_ranges <- GenomicRanges::makeGRangesFromDataFrame(tes_gene_ranges)
-
-  if (length(unique(width(qregion))) != 1) {
-    qregion <- resize(qregion, 1, fix = "center")
+  if (length(unique(rtracklayer::width(qregion))) != 1) {
+    qregion <- SummarizedExperiment::resize(qregion, 1, fix = "center")
   }
-  qregion <- qregion[GenomeInfoDb::seqnames(qregion) %in% GenomeInfoDb::seqlevels(feature_coords)]
-  seqlevels(qregion) <- GenomicRanges::intersect(GenomeInfoDb::seqlevels(qregion), GenomeInfoDb::seqlevels(feature_coords))
-  peak_gene_ranges <- GenomicRanges::mapToTranscripts(qregion, feature_coords)
-
-
+  qregion <- qregion[as.character(GenomicRanges::seqnames(qregion)) %in% as.character(GenomeInfoDb::seqlevels(feature_coords))]
+  GenomeInfoDb::seqlevels(qregion) <- GenomicRanges::intersect(GenomeInfoDb::seqlevels(qregion), GenomeInfoDb::seqlevels(feature_coords))
+  peak_gene_ranges <- GenomicFeatures::mapToTranscripts(qregion, feature_coords)
   gene_ranges <- list()
   gene_ranges[["tss"]] <- tss_gene_ranges
   gene_ranges[["tes"]] <- tes_gene_ranges
-
-  sm_all <- suppressWarnings(parallel::mclapply(gene_ranges, .score_matrix_RNA, target = peak_gene_ranges, strand.aware = TRUE, mc.cores=2))
+  num_cores <- ifelse(Sys.info()["sysname"] == "Windows", 1, 4)
+  sm_all <- suppressWarnings(parallel::mclapply(gene_ranges, .score_matrix_RNA, target = peak_gene_ranges, strand_aware = TRUE, mc.cores = num_cores))
   sm_tss <- sm_all[["tss"]]
   sm_tes <- sm_all[["tes"]]
   return(.peak_heatmap(sm_tss, sm_tes))

@@ -54,7 +54,8 @@ RNAmeta_get_translation_plot <- function(translation_data = NULL, set_group_name
   } else {
     legend_position <- "none"
   }
-  p1 <- ggplot2::ggplot(cct3, ggplot2::aes(x = rel_pos, colour = Sample)) +
+
+  p1 <- suppressWarnings(ggplot2::ggplot(cct3, ggplot2::aes(x = rel_pos, colour = Sample)) +
     ggplot2::ggtitle("Distribution on Translation start site") +
     ggplot2::scale_x_continuous(labels = scales::label_comma(), breaks = scales::pretty_breaks(n = 10), limits = c(xmin, xmax)) +
     ggplot2::scale_y_continuous(labels = scales::label_scientific(), breaks = scales::pretty_breaks(n = 8)) +
@@ -71,7 +72,7 @@ RNAmeta_get_translation_plot <- function(translation_data = NULL, set_group_name
     ggplot2::xlab("Region around the site (0 and 5' -> 3' direction)") +
     ggplot2::ylab("Density") +
     ggplot2::geom_density(alpha = 0.4) +
-    ggplot2::geom_vline(xintercept = 0, linetype = "dotted")
+    ggplot2::geom_vline(xintercept = 0, linetype = "dotted"))
   #----------------------------------------------------
   cct4 <- tsl_list[feature=="Translation_end_site"]
   xmin2 <- unique(cct4$xmin)
@@ -92,7 +93,7 @@ RNAmeta_get_translation_plot <- function(translation_data = NULL, set_group_name
   } else {
     legend_position <- "none"
   }
-  p2 <- ggplot2::ggplot(cct4, ggplot2::aes(x = rel_pos, colour = Sample)) +
+  p2 <- suppressWarnings(ggplot2::ggplot(cct4, ggplot2::aes(x = rel_pos, colour = Sample)) +
     ggplot2::ggtitle("Distribution on Translation end site") +
     ggplot2::scale_x_continuous(labels = scales::label_comma(), breaks = scales::pretty_breaks(n = 10), limits = c(xmin2, xmax2)) +
     ggplot2::scale_y_continuous(labels = scales::label_scientific(), breaks = scales::pretty_breaks(n = 8)) +
@@ -109,7 +110,7 @@ RNAmeta_get_translation_plot <- function(translation_data = NULL, set_group_name
     ggplot2::xlab("Region around the site (0 and 5' -> 3' direction)") +
     ggplot2::ylab("Density") +
     ggplot2::geom_density(alpha = 0.4) +
-    ggplot2::geom_vline(xintercept = 0, linetype = "dotted")
+    ggplot2::geom_vline(xintercept = 0, linetype = "dotted"))
   #----------------------------------------------------
   xlim_5 <- peak_heatmap_data[[2]]
   xlim_3 <- peak_heatmap_data[[1]]
@@ -130,7 +131,7 @@ RNAmeta_get_translation_plot <- function(translation_data = NULL, set_group_name
     data_column_5 <- c(data_column_5, rep(i, rows_5))
   }
   result_data_5$col_number <- data_column_5
-  p3 <- ggplot2::ggplot(result_data_5, ggplot2::aes(x = col_number, y = row_number, fill = value)) +
+  p3 <- suppressWarnings(ggplot2::ggplot(result_data_5, ggplot2::aes(x = col_number, y = row_number, fill = value)) +
     ggplot2::geom_tile(colour = NA) +
     ggplot2::scale_fill_gradientn(colors = c("#420046", "#fedc00")) +
     ggplot2::scale_x_continuous(expand = c(0.003, 0), breaks = pretty(result_data_5$col_number, n = 8)) +
@@ -146,7 +147,7 @@ RNAmeta_get_translation_plot <- function(translation_data = NULL, set_group_name
       panel.grid.minor = ggplot2::element_blank(),
       plot.margin = ggplot2::unit(c(5.5, 14, 5.5, 14), "points"),
       plot.title = ggplot2::element_text(hjust = 0.5)
-    )
+    ))
   #----------------------------------------------------
   min_xlim_3 <- min(xlim_3)
   max_xlim_3 <- max(xlim_3)
@@ -163,7 +164,7 @@ RNAmeta_get_translation_plot <- function(translation_data = NULL, set_group_name
   }
   result_data_3$col_number <- data_column_3
 
-  p4 <- ggplot2::ggplot(result_data_3, aes(x = col_number, y = row_number, fill = value)) +
+  p4 <- suppressWarnings(ggplot2::ggplot(result_data_3, aes(x = col_number, y = row_number, fill = value)) +
     ggplot2::geom_tile() +
     ggplot2::scale_fill_gradientn(colors = c("#420046", "#fedc00")) +
     ggplot2::scale_x_continuous(expand = c(0.003, 0), breaks = pretty(result_data_3$col_number, n = 8)) +
@@ -179,10 +180,8 @@ RNAmeta_get_translation_plot <- function(translation_data = NULL, set_group_name
       panel.grid.minor = ggplot2::element_blank(),
       plot.margin = ggplot2::unit(c(5.5, 14, 5.5, 14), "points"),
       plot.title = ggplot2::element_text(hjust = 0.5)
-    )
+    ))
   #----------------------------------------------------
   plot_list <- list(p1, p2, p3, p4)
   return(plot_list)
 }
-
-
