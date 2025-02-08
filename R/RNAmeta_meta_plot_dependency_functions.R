@@ -710,7 +710,7 @@
   return(chrom_info)
 }
 
-.bed_file_test <- function(bed_file = NULL, chrom_info = NULL, set_group_name_length = NULL) {
+.bed_file_test_for_gene_meta <- function(bed_file = NULL, chrom_info = NULL, set_group_name_length = NULL) {
   print("Checking bed_file begins.")
   if(set_group_name_length != length(bed_file)){
     stop(paste("Error: The number of 'bed files' is", length(bed_file),

@@ -36,51 +36,101 @@
   return(txdb_features)
 }
 
-.detect_delimiter <- function(file_path = NULL) {
-  lines <- readLines(file_path, n = 5)
-  delimiters <- c(",", "\t", " ")
-  counts <- sapply(delimiters, function(d) sapply(lines, function(line) length(strsplit(line, d)[[1]])))
-  detected_delimiter <- delimiters[which.max(colSums(counts))]
-  return(detected_delimiter)
+.bed_file_test_for_base <- function(bed_file = NULL, chrom_info = NULL) {
+  for (i in 1:length(bed_file)) {
+    current_bed_file <- bed_file[[i]]
+    if (tools::file_ext(current_bed_file) != "bed") {
+      stop(paste("The file", current_bed_file, "is not in .bed format"))
+    }
+    first_line <- readLines(current_bed_file, n = 1)
+    first_five_lines <- readLines(current_bed_file, n = 5)
+    possible_delimiters <- c("\t", " ", ",")
+    detected_delimiter <- NULL
+    for (delimiter in possible_delimiters) {
+      split_counts <- sapply(first_five_lines, function(line) length(unlist(strsplit(line, delimiter))))
+      if (length(unique(split_counts)) == 1) {
+        detected_delimiter <- delimiter
+        break
+      }
+    }
+    if (is.null(detected_delimiter)) {
+      stop(paste("Unable to detect the delimiter in the BED file", current_bed_file, ". Please check the file format."))
+    }
+    first_line <- first_five_lines[1]
+    first_line <- unlist(strsplit(first_line, detected_delimiter))
+    is_header <- suppressWarnings(all(is.na(as.numeric(first_line))))
+    if (is_header) {
+      warning(paste("This file", current_bed_file, "contains column names. We have removed the column names. Please use a BED file without column names."))
+      bed_data <- read.table(current_bed_file, header = FALSE, stringsAsFactors = FALSE, skip = 1)
+    } else {
+      bed_data <- read.table(current_bed_file, header = FALSE, stringsAsFactors = FALSE)
+    }
+    if (any(!grepl("^\\d+$", bed_data$V2))) {
+      non_numeric_rows <- which(!grepl("^\\d+$", bed_data$V2))
+      stop(paste("The second column has non-numeric values in", current_bed_file, "error at row(s):", paste(non_numeric_rows, collapse = ", ")))
+    }
+    if (any(!grepl("^\\d+$", bed_data$V3))) {
+      non_numeric_rows <- which(!grepl("^\\d+$", bed_data$V3))
+      stop(paste("The third column has non-numeric values in", current_bed_file, "error at row(s):", paste(non_numeric_rows, collapse = ", ")))
+    }
+    if (any(bed_data$V3 <= bed_data$V2)) {
+      invalid_rows <- which(bed_data$V3 <= bed_data$V2)
+      stop(paste("The third column is not greater than the second column in", current_bed_file, "error at row(s):", paste(invalid_rows, collapse = ", ")))
+    }
+    bed_chroms <- unique(bed_data$V1)
+    chrom_info_chroms <- unique(chrom_info$chrom)
+    missing_chroms <- setdiff(bed_chroms, chrom_info_chroms)
+    if (length(missing_chroms) > 0) {
+      stop(paste("The following chromosomes in", current_bed_file, "are not present in chrom_info:", paste(missing_chroms, collapse = ", ")))
+    }
+    bed_data <- data.table::as.data.table(bed_data)
+    if (ncol(bed_data) == 3) {
+      bed_data[, V4 := paste0("site", .I)]
+      bed_data[, V5 := "."]
+      bed_data[, V6 := "*"]
+    } else if (ncol(bed_data) == 4) {
+      bed_data[, V5 := "."]
+      bed_data[, V6 := "*"]
+    } else if (ncol(bed_data) == 5) {
+      bed_data[, V6 := "*"]
+    }
+    suppressWarnings(if (sum(!is.na(as.numeric(bed_data[[5]]))) > sum(sapply(bed_data[, 5, with = FALSE], function(col) sum(is.na(as.numeric(col)))))) {
+      bed_data <- bed_data[!is.na(as.numeric(bed_data[[5]])), ]
+    })
+    bed_data <- bed_data[, 1:6, with = FALSE]
+  }
+
+  return(bed_data)
+}
+
+.txdb_file_test <- function(txdb_file = NULL){
+  print("Checking txdb_file begins.")
+  if (!grepl("\\.sqlite$", txdb_file)) {
+    stop("The file extension of txdb_file must be '.sqlite'")
+  }
+  txdb_sql <- DBI::dbConnect(RSQLite::SQLite(), dbname = txdb_file)
+  if (!"chrominfo" %in% DBI::dbListTables(txdb_sql)) {
+    DBI::dbDisconnect(txdb_sql)
+    stop("This database file does not meet the query specifications: 'chrominfo' table is missing.")
+  }
+  chrom_info <- data.table::as.data.table(DBI::dbGetQuery(txdb_sql, "SELECT * FROM chrominfo"))
+  if(is.null(chrom_info)){
+    DBI::dbDisconnect(txdb_sql)
+    stop("This database file does not meet the query specifications: 'chrominfo' table is null.")
+  }
+  DBI::dbDisconnect(txdb_sql)
+  print("txdb_file check passed.")
+  return(chrom_info)
 }
 
 .batch_peak_reader <- function(group_name = NULL, subset_for_motif = NULL, txdb_file = NULL, bed_file = NULL, txdb_file_path = NULL) {
   group_name = names(group_name)
-  bed_headers = c("chr","start","end","name","score","strand","thickStart","thickEnd","itemRgb","blockCount","blockSizes","blockStarts")
+  bed_headers = c("chr","start","end","name","score","strand")
   peak_file = bed_file
-  delimiter <- .detect_delimiter(peak_file)
-  peak_df = data.table::fread(peak_file,header = F,sep = delimiter)
-  if(ncol(peak_df) == 3){
-    peak_df[, site := paste0("site", .I)]
-    peak_df[, dot_column := "."]
-    peak_df[, star_column := "*"]
-  }
-  if(ncol(peak_df) == 4){
-    peak_df[, dot_column := "."]
-    peak_df[, star_column := "*"]
-  }
-  if(ncol(peak_df) == 5){
-    peak_df[, star_column := "*"]
-  }
-  peak_df <- peak_df[, 1:6, with = FALSE]
-  suppressWarnings(if (sum(!is.na(as.numeric(peak_df[[5]]))) > sum(sapply(peak_df[, -5, with = FALSE], function(col) sum(is.na(as.numeric(col)))))) {
-    peak_df <- peak_df[!is.na(as.numeric(peak_df[[5]])), ]
-  })
-  peak_df <- peak_df[peak_df[[3]] > peak_df[[2]], ]
-
-  txdb_sql <- DBI::dbConnect(RSQLite::SQLite(), dbname = txdb_file_path)
-  chrominfo <- data.table::as.data.table(DBI::dbGetQuery(txdb_sql, "SELECT * FROM chrominfo"))
-  DBI::dbDisconnect(txdb_sql)
-  valid_chromosomes <- chrominfo$chrom
-  peak_df <- peak_df[peak_df[[1]] %in% valid_chromosomes, ]
-
-
-  data.table::setnames(peak_df,bed_headers[1:ncol(peak_df)])
-  peak_df[!strand %in% c("+","-","*"), strand:= "*"]
-  peak_df[,score := as.numeric(score)]
-  if(ncol(peak_df) >= 5 && subset_for_motif != "All") {
-    data.table::setorder(peak_df, -score)
-  }
+  chrom_info <-.txdb_file_test(txdb_file = txdb_file_path)
+  peak_df <- .bed_file_test_for_base(bed_file = peak_file, chrom_info = chrom_info)
+  data.table::setnames(peak_df, bed_headers[1:ncol(peak_df)])
+  peak_df[!strand %in% c("+", "-", "*"), strand := "*"]
   peak_df[,start := start + 1]
   peak_df <- peak_df[grep("chr", chr, ignore.case = TRUE)]
   peak_df <- peak_df[,chr := gsub("chr", 'chr', chr, ignore.case = TRUE)]

@@ -60,7 +60,7 @@ RNAmeta_get_preliminary_analysis_data <- function(bed_file = NULL, txdb_file = N
     peak_gr = list()
     peak_gr_for_motifscan = list()
     group_name <- paste0("Group",i)
-    ctt <- .batch_peak_reader(group_name = group_name, subset_for_motif = subset_for_motif, txdb_file = txdb_file, bed_file = bed_file_list[[i]], txdb_file_path = txdb_file_path)
+    ctt <- .batch_peak_reader(group_name = group_name, txdb_file = txdb_file, bed_file = bed_file_list[[i]], txdb_file_path = txdb_file_path)
     if(max(GenomicRanges::width(ctt)) < 15) {
       peak_gr_for_motifscan[[group_name]] <- GenomicRanges::resize(ctt, width = 15, fix="center")
     } else {

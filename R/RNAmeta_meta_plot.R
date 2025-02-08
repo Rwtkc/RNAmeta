@@ -142,7 +142,7 @@ RNAmeta_meta_plot <- function(bed_file = NULL,
     set_group_name_length = length(set_group_name)
   }
   chrom_info <- .txdb_file_test(txdb_file)
-  bed_file <- .bed_file_test(bed_file = bed_file, chrom_info = chrom_info, set_group_name_length = set_group_name_length)
+  bed_file <- .bed_file_test_for_gene_meta(bed_file = bed_file, chrom_info = chrom_info, set_group_name_length = set_group_name_length)
   txdb_file <- AnnotationDbi::loadDb(txdb_file)
   guitar_txdb <- .get_Guitar_txdb(txdb_file = txdb_file,
                                   tx_five_utr_min_length = tx_five_utr_min_length,
