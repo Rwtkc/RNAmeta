@@ -1,6 +1,6 @@
 Package: RNAmeta
 Title: RNAmeta: An R Package for Genomic Region Analysis and Visualization
-Version: 0.0.0.9000
+Version: 0.0.1
 Authors@R: 
     person(given = "Rwtkc", 
            email = "rwtkc@foxmail.com", 
