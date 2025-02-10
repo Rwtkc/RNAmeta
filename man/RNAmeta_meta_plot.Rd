@@ -8,7 +8,7 @@ RNAmeta_meta_plot(
   bed_file = NULL,
   txdb_file = NULL,
   plot_tx_type = NULL,
-  sample_model = NULL,
+  sample_model = "Equidistance",
   head_or_tail = TRUE,
   set_group_name = NULL,
   set_ambiguity = 5,
