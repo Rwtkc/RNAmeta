@@ -86,7 +86,6 @@
 #' @param plot_tx_type Which transcript type to plot.
 #'   Specifies which transcript type (e.g., "tx", "mRNA", "ncRNA") should be drawn on the plot.
 #'   If the specified transcript type is not found in the genome, it will not be plotted.
-#'   Default: c("tx", "mRNA", "ncRNA")
 #' @param overlap_index Index of site overlap count.
 #'   Specifies the number of overlaps between genomic sites to be considered.
 #'   Default: 1

@@ -41,8 +41,7 @@ features including gene IDs, transcript coordinates, and exon structures.}
 
 \item{plot_tx_type}{Which transcript type to plot.
 Specifies which transcript type (e.g., "tx", "mRNA", "ncRNA") should be drawn on the plot.
-If the specified transcript type is not found in the genome, it will not be plotted.
-Default: c("tx", "mRNA", "ncRNA")}
+If the specified transcript type is not found in the genome, it will not be plotted.}
 
 \item{sample_model}{The sampling model to be used.
 Specifies the method for sampling bases from each genomic site.
